@@ -6,19 +6,26 @@
 in vec3 Position;
 in vec4 Color;
 in vec2 UV0;
+in ivec2 UV1;
 in ivec2 UV2;
 in vec3 Normal;
 
+uniform sampler2D Sampler1;
 uniform sampler2D Sampler2;
 
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
-uniform vec3 ChunkOffset;
+
+uniform vec3 Light0_Direction;
+uniform vec3 Light1_Direction;
 
 out float vertexDistance;
 out vec4 vertexColor;
+out vec4 lightMapColor;
+out vec4 overlayColor;
 out vec2 texCoord0;
 out vec4 normal;
+out vec3 light0;
 
 float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
@@ -47,10 +54,13 @@ float rand(vec3 p){
 }
 
 void main() {
+    light0 = Light0_Direction;
     vec2 uv = mod(UV0, 16.0/1024.0) * 1024.0/16.0;
 
-    vertexDistance = length((ModelViewMat * vec4(Position + ChunkOffset, 1.0)).xyz);
-    vertexColor = Color * minecraft_sample_lightmap(Sampler2, UV2);
+    vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
+    vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);
+    lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);
+    overlayColor = texelFetch(Sampler1, UV1, 0);
     texCoord0 = UV0;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
     
@@ -70,7 +80,7 @@ void main() {
         uvOffset = vec3(1.0 - uv.x, 1.0 - uv.y, 0.0);
     }
     
-    float blockDistance = max(0.0, length((ModelViewMat * vec4(Position - uvOffset + vec3(0.5) + ChunkOffset, 1.0)).xyz) - distanceThreshold);
+    float blockDistance = max(0.0, length((ModelViewMat * vec4(Position - uvOffset + vec3(0.5), 1.0)).xyz) - distanceThreshold);
     blockDistance *= blockDistance;
     
     float scale = clamp(blockDistance * 0.1 / fadeScale, 0.0, 1.0);
@@ -89,14 +99,12 @@ void main() {
         uvScale = vec3(uv.x - 0.5, uv.y - 0.5, 0.0) * scale;
     }
 
-    if (any(notEqual(mod(Position, vec3(1.0)), vec3(0.0)))) {
-        // Don't floor for non full blocks
-        gl_Position = ProjMat * ModelViewMat * vec4(Position + uvScale + ChunkOffset, 1.0);
-    } else {
-        gl_Position = ProjMat * ModelViewMat * vec4(floor(Position) + uvScale + ChunkOffset, 1.0);
-    }
-    gl_Position += normal * blockDistance * 0.2 / fadeScale * rand(Position - uvOffset);
-    if (blockDistance > 10.0 * fadeScale) {
-        gl_Position = vec4(0.0);
+    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+    // Skip inventory items
+    if (Light0_Direction.y > 67.0/255.0 || (Light0_Direction.y < 66.0/255.0 && Light0_Direction.y > 44.0/255.0) || Light0_Direction.y < 43.0/255.0) {
+        gl_Position += normal * blockDistance * 0.2 / fadeScale * rand(Position - uvOffset);
+        if (blockDistance > 10.0 * fadeScale) {
+            gl_Position = vec4(0.0);
+        }
     }
 }
