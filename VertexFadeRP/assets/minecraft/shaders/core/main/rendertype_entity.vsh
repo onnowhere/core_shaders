@@ -15,6 +15,7 @@ uniform sampler2D Sampler2;
 
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
+uniform float GameTime;
 
 uniform vec3 Light0_Direction;
 uniform vec3 Light1_Direction;
@@ -25,7 +26,6 @@ out vec4 lightMapColor;
 out vec4 overlayColor;
 out vec2 texCoord0;
 out vec4 normal;
-out vec3 light0;
 
 float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
@@ -54,7 +54,6 @@ float rand(vec3 p){
 }
 
 void main() {
-    light0 = Light0_Direction;
     vec2 uv = mod(UV0, 16.0/1024.0) * 1024.0/16.0;
 
     vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
@@ -83,7 +82,8 @@ void main() {
     float blockDistance = max(0.0, length((ModelViewMat * vec4(Position - uvOffset + vec3(0.5), 1.0)).xyz) - distanceThreshold);
     blockDistance *= blockDistance;
     
-    float scale = clamp(blockDistance * 0.1 / fadeScale, 0.0, 1.0);
+    float animation = (sin((rand(Position - uvOffset) + GameTime) * 1600.0) / 8.0) * 0.25 + 0.75;
+    float scale = clamp(blockDistance * animation * 0.1 / fadeScale, 0.0, 1.0);
     vec3 uvScale = vec3(0.5 - uv.x, 0.0, 0.5 - uv.y) * scale;
     if (Normal == vec3(1.0, 0.0, 0.0)) { // Positive X
         uvScale = vec3(0.0, uv.y - 0.5, uv.x - 0.5) * scale;
@@ -102,7 +102,7 @@ void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
     // Skip inventory items
     if (Light0_Direction.y > 67.0/255.0 || (Light0_Direction.y < 66.0/255.0 && Light0_Direction.y > 44.0/255.0) || Light0_Direction.y < 43.0/255.0) {
-        gl_Position += normal * blockDistance * 0.2 / fadeScale * rand(Position - uvOffset);
+        gl_Position += normal * blockDistance * animation * 0.2 / fadeScale * rand(Position - uvOffset);
         if (blockDistance > 10.0 * fadeScale) {
             gl_Position = vec4(0.0);
         }

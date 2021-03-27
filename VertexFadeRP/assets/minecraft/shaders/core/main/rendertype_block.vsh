@@ -14,6 +14,7 @@ uniform sampler2D Sampler2;
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
 uniform vec3 ChunkOffset;
+uniform float GameTime;
 
 out float vertexDistance;
 out vec4 vertexColor;
@@ -73,7 +74,8 @@ void main() {
     float blockDistance = max(0.0, length((ModelViewMat * vec4(Position - uvOffset + vec3(0.5) + ChunkOffset, 1.0)).xyz) - distanceThreshold);
     blockDistance *= blockDistance;
     
-    float scale = clamp(blockDistance * 0.1 / fadeScale, 0.0, 1.0);
+    float animation = (sin((rand(Position - uvOffset) + GameTime) * 1600.0) / 8.0) * 0.25 + 0.75;
+    float scale = clamp(blockDistance * animation * 0.1 / fadeScale, 0.0, 1.0);
     vec3 uvScale = vec3(0.5 - uv.x, 0.0, 0.5 - uv.y) * scale;
     if (Normal == vec3(1.0, 0.0, 0.0)) { // Positive X
         uvScale = vec3(0.0, uv.y - 0.5, uv.x - 0.5) * scale;
@@ -95,7 +97,7 @@ void main() {
     } else {
         gl_Position = ProjMat * ModelViewMat * vec4(floor(Position) + uvScale + ChunkOffset, 1.0);
     }
-    gl_Position += normal * blockDistance * 0.2 / fadeScale * rand(Position - uvOffset);
+    gl_Position += normal * blockDistance * animation * 0.2 / fadeScale * rand(Position - uvOffset);
     if (blockDistance > 10.0 * fadeScale) {
         gl_Position = vec4(0.0);
     }
