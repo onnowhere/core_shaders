@@ -98,7 +98,7 @@ void main() {
         gl_Position = ProjMat * ModelViewMat * vec4(floor(Position) + uvScale + ChunkOffset, 1.0);
     }
     gl_Position += normal * blockDistance * animation * 0.2 / fadeScale * rand(Position - uvOffset);
-    if (blockDistance > 10.0 * fadeScale) {
-        gl_Position = vec4(0.0);
+    if (blockDistance > 15.0 * fadeScale) {
+        gl_Position = vec4(100.0, 100.0, 100.0, -1.0);
     }
 }
