@@ -1,4 +1,4 @@
-HOW TO EDIT VALUES IN THE SHADER
+HOW TO EDIT SHADER PROPERTY VALUES
 
 Go to file: assets/minecraft/shaders/include/vertex_fade.glsl
 
