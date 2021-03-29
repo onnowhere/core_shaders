@@ -53,7 +53,7 @@ void main() {
         fractPosition *= rotationMatrix(Normal.zxy, -halfPi); // Rotate around Y axis
     } else if (abs(Normal) == vec3(0.0, 1.0, 0.0)) { // Positive/Negative Y
         fractPosition *= rotationMatrix(Normal.yzx, halfPi); // Rotate around X axis
-    } else if (Normal == vec3(0.0, 0.0, -1.0)) { // Positive/Negative Y
+    } else if (Normal == vec3(0.0, 0.0, -1.0)) { // Negative Y
         fractPosition *= rotationMatrix(Normal.yzx, -pi); // Rotate around Y axis
     }
     fractPosition = fract(fractPosition);
