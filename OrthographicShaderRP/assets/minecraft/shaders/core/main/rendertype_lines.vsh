@@ -1,3 +1,8 @@
+/*
+ * Created by Onnowhere (https://github.com/onnowhere)
+ * Orthographic core vertex shader
+ */
+
 #version 150
 
 #moj_import <vsh_util.glsl>
