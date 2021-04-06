@@ -7,6 +7,14 @@
 #define LIGHT1_DIRECTION vec3(-0.2, 1.0, 0.7) // Default light 1 direction everywhere except in nether and inventory
 
 /*
+ * Returns the FOV in degrees
+ * Calculates using the fact that top/near = tan(theta / 2)
+ */
+float getFOV(mat4 ProjMat) {
+    return atan(1.0, ProjMat[1][1]) * 114.591559;
+}
+
+/*
  * Returns if rendering in a GUI
  * In the GUI, near is 1000 and far is 3000, so -(far+near)/(far-near) = -2.0
  */
