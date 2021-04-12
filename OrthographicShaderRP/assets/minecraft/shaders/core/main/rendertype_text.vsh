@@ -5,6 +5,9 @@
 
 #version 150
 
+#moj_import <vsh_util.glsl>
+#moj_import <ortho_config.glsl>
+
 in vec3 Position;
 in vec4 Color;
 in vec2 UV0;
@@ -20,7 +23,13 @@ out vec4 vertexColor;
 out vec2 texCoord0;
 
 void main() {
-    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+    // Skip GUI
+    if (!isGUI(ProjMat)) {
+        mat4 OrthoMat = getOrthoMat(ProjMat, ZOOM);
+        gl_Position = OrthoMat * ModelViewMat * vec4(Position, 1.0);
+    } else {
+        gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+    }
 
     vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
     vertexColor = Color * texelFetch(Sampler2, UV2 / 16, 0);
