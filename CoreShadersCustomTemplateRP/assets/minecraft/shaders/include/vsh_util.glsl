@@ -76,10 +76,12 @@ float getRenderDistance(mat4 ProjMat) {
  */
 mat4 getOrthoMat(mat4 ProjMat, float Zoom) {
     float far = getFarClippingPlane(ProjMat);
-    float near = 0.05; // Fixed distance that should never change
-    float left = -(0.5 / (ProjMat[0][0] / (2.0 * near))) / Zoom;
+    float near = -1000.0; // Avoid clipping distance
+    
+    float fixed_near = 0.05; // Fixed distance that should never change
+    float left = -(0.5 / (ProjMat[0][0] / (2.0 * fixed_near))) / Zoom;
     float right = -left;
-    float top = (0.5 / (ProjMat[1][1] / (2.0 * near))) / Zoom;
+    float top = (0.5 / (ProjMat[1][1] / (2.0 * fixed_near))) / Zoom;
     float bottom = -top;
 
     return mat4(2.0 / (right - left),               0.0,                                0.0,                            0.0,
