@@ -36,7 +36,7 @@ bool isPanorama(mat4 ProjMat) {
  * In the nether, the light directions are parallel but in opposite directions
  */
 bool isNether(vec3 light0, vec3 light1) {
-    return abs(light0) == abs(light1);
+    return light0 == -light1;
 }
 
 /*
