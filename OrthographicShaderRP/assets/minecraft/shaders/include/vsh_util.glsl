@@ -16,7 +16,7 @@ float getFOV(mat4 ProjMat) {
 
 /*
  * Returns if rendering in a GUI
- * In the GUI, near is 1000 and far is 3000, so -(far+near)/(far-near) = -2.0
+ * In the GUI, the value is guaranteed to be 0.0
  */
 bool isGUI(mat4 ProjMat) {
     return ProjMat[2][3] == 0.0;
